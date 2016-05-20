@@ -31,7 +31,7 @@ function SendToCalendar(selection, tab) {
 	var url = "http://www.google.com/calendar/event?action=TEMPLATE";
     
     // Page title to event title
-    url += "&text=" + TrimURITo(tab.title, maxLength);
+    // url += "&text=" + TrimURITo(tab.title, maxLength);
 
     // Check if the selected text contains a US formatted address
     // and it its first 100 chars to URI if so
@@ -42,12 +42,17 @@ function SendToCalendar(selection, tab) {
     }
 
     // URL goes to star of details (event description)
-    var taburl = TrimURITo(tab.url + "\n\n", maxLength - url.length);
+    url += "&details=" + TrimURITo(tab.url + "\n\n", maxLength - url.length);
 
     // Selection goes to end of details, and to ctext (google calendar quick add),
     // (trim to half of the available length cause its twice in the URI)
-    var selection = TrimURITo(selection, (maxLength - url.length)/2);
-    url += "&details=" + selection + "&ctext=" + selection;
+    var selection = TrimURITo(selection, (maxLength - url.length - title.length)/2);
+    url += selection;
+    // ctext is also prepended with tab.title,
+    // so that Google Calendar can use it to generate the text,
+    // but can also include other info.
+    var title = TrimURITo(tab.title + "\n", maxLength - url.length);
+    url += "&ctext=" + title + selection;
 	
     // Open the created url in a new tab
 	chrome.tabs.create({ "url": url}, function (tab) {});
@@ -74,6 +79,4 @@ function TrimURITo(text, length) {
     return textURI;
 }
 
-// TODO: configuration to choose whether I want tab.title to fill the text,
-// or wherher to allow Google calendar to fill it by itself from ctext
-
+// TODO: configuration to include tab.url in description?
