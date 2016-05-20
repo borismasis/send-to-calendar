@@ -7,8 +7,15 @@ function SendToCalendarOuter(data, tab) {
     chrome.tabs.executeScript( {
         code: "window.getSelection().toString();"
     }, function(selection) {
-        // selection[0] contains text including line breaks
-        SendToCalendar(selection[0], tab);
+        if (selection) {
+            // selection[0] contains text including line breaks
+            SendToCalendar(selection[0], tab);
+        } else if (data.selectionText) {
+            // data.selectionText contains text without line breaks
+            SendToCalendar(data.selectionText, tab);
+        } else {
+            SendToCalendar("", tab);
+        }
     });
 }
 
@@ -20,9 +27,11 @@ function SendToCalendar(selection, tab) {
     // but we don't surpass it by more than a few tens of chars.)
     var maxLength = 1600;
 
+    // Start building the URL
+	var url = "http://www.google.com/calendar/event?action=TEMPLATE";
+    
     // Page title to event title
-	var url = "http://www.google.com/calendar/event?action=TEMPLATE"
-        + "&text=" + TrimURITo(tab.title, maxLength);
+    url += "&text=" + TrimURITo(tab.title, maxLength);
 
     // Check if the selected text contains a US formatted address
     // and it its first 100 chars to URI if so
