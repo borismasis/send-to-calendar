@@ -46,13 +46,12 @@ function SendToCalendar(selection, tab) {
 
     // Selection goes to end of details, and to ctext (google calendar quick add),
     // (trim to half of the available length cause its twice in the URI)
-    var selection = TrimURITo(selection, (maxLength - url.length - title.length)/2);
-    url += selection;
     // ctext is also prepended with tab.title,
     // so that Google Calendar can use it to generate the text,
     // but can also include other info.
     var title = TrimURITo(tab.title + "\n", maxLength - url.length);
-    url += "&ctext=" + title + selection;
+    var selection = TrimURITo(selection, (maxLength - url.length)/2 - title.length);
+    url += selection + "&ctext=" + title + selection;
 	
     // Open the created url in a new tab
 	chrome.tabs.create({ "url": url}, function (tab) {});
